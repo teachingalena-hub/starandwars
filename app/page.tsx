@@ -152,7 +152,11 @@ function PileOfCards({ onBack }: { onBack: () => void }) {
       <button className={`prompt-card ${flipped ? "is-flipped" : ""}`} onClick={() => !flipped && setFlipped(true)} aria-label={flipped ? `${card.verb}, Past Simple, ${card.sign}, ${card.hint}` : `Перевернуть карточку ${current + 1}`}>
         <span className="prompt-inner">
           <span className="prompt-cover"><small>CLASSIFIED PROMPT</small><strong>{String(current + 1).padStart(2, "0")}</strong><i>TOUCH TO REVEAL</i><em>◆</em></span>
-          <span className="prompt-face"><small>VERB // ACTIVE</small><strong>{card.verb}</strong><b>PAST SIMPLE</b><i>{card.sign}</i><span>CONTEXT</span><em>{card.hint}</em></span>
+          <span className="prompt-face">
+            <span className="prompt-task">{card.verb}</span>
+            <span className="prompt-sign">{card.sign === "−" ? "✕" : card.sign}</span>
+            <span className="prompt-context">{card.hint}</span>
+          </span>
         </span>
       </button>
       <p className="flip-hint">{flipped ? "SAY YOUR SENTENCE ALOUD" : "CLICK THE CARD TO FLIP"}</p>

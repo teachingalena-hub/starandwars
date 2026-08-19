@@ -1,0 +1,35 @@
+.prompt-face {
+  gap: 26px;
+}
+
+.prompt-face > .prompt-task,
+.prompt-face > .prompt-context {
+  display: block;
+  width: 84%;
+  color: #f2d9dc;
+  font-family: Inter, Arial, sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.prompt-face > .prompt-task {
+  text-transform: uppercase;
+}
+
+.prompt-face > .prompt-sign {
+  display: block;
+  height: auto;
+  color: #ff5362;
+  font-family: Inter, Arial, sans-serif;
+  font-size: 43px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 0 24px #ff3047;
+}
