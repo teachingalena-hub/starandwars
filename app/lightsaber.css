@@ -1,0 +1,204 @@
+.saber-view {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  overflow: hidden;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 67% 46%, rgba(103, 64, 210, .22), transparent 34%),
+    radial-gradient(circle at 18% 82%, rgba(26, 93, 184, .15), transparent 28%),
+    linear-gradient(145deg, #02030a, #080719 58%, #02030a);
+  animation: reveal .45s ease both;
+}
+
+.saber-view::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(164, 123, 255, .035) 50%, transparent 50.2%),
+    linear-gradient(0deg, transparent 49.8%, rgba(104, 175, 255, .03) 50%, transparent 50.2%);
+  background-size: 92px 92px;
+  mask-image: linear-gradient(#000, transparent 90%);
+}
+
+.saber-stars {
+  position: absolute;
+  inset: 0;
+  opacity: .52;
+  pointer-events: none;
+  background-image: radial-gradient(#cfc5ff .8px, transparent .9px), radial-gradient(#8ac8ff .5px, transparent .6px);
+  background-size: 71px 71px, 113px 113px;
+  background-position: 0 0, 28px 19px;
+}
+
+.saber-back {
+  position: absolute;
+  z-index: 4;
+  top: 30px;
+  left: clamp(22px, 4vw, 62px);
+  border: 1px solid rgba(169, 126, 255, .42);
+  background: rgba(7, 6, 22, .82);
+  color: #c19dff;
+  padding: 11px 16px;
+  cursor: pointer;
+  font: 600 11px 'Barlow Condensed';
+  letter-spacing: .15em;
+}
+
+.saber-progress {
+  position: absolute;
+  z-index: 4;
+  top: 34px;
+  right: clamp(22px, 4vw, 62px);
+  color: #d8ccff;
+  font: 600 15px 'Barlow Condensed';
+  letter-spacing: .18em;
+}
+
+.saber-progress span { color: #635a83; margin: 0 5px; }
+
+.saber-stage {
+  position: absolute;
+  z-index: 2;
+  top: 47%;
+  left: 50%;
+  width: min(92vw, 1420px);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 0 22px rgba(126, 89, 255, .28));
+}
+
+.saber-hilt {
+  position: relative;
+  flex: 0 0 165px;
+  height: 64px;
+  z-index: 3;
+  border: 1px solid #68718b;
+  border-radius: 11px 3px 3px 11px;
+  background: linear-gradient(180deg, #647087 0, #1a2030 24%, #090c14 55%, #3d465b 76%, #11151f 100%);
+  box-shadow: inset 0 0 8px #ffffff2b, 0 8px 26px #000;
+}
+
+.saber-hilt::before {
+  content: "";
+  position: absolute;
+  width: 23px;
+  inset: -8px -5px -8px auto;
+  border: 1px solid #7b86a0;
+  background: linear-gradient(90deg, #1a2030, #677086, #151925);
+  border-radius: 4px;
+}
+
+.saber-hilt i, .saber-hilt b, .saber-hilt em { position: absolute; display: block; }
+.saber-hilt i { width: 11px; height: 11px; top: 11px; left: 31px; border-radius: 50%; background: #b88aff; box-shadow: 0 0 11px #a76cff; }
+.saber-hilt b { width: 46px; height: 8px; left: 57px; top: 27px; border-top: 2px solid #8993a8; border-bottom: 2px solid #202636; }
+.saber-hilt em { left: 19px; right: 18px; bottom: 8px; height: 4px; background: repeating-linear-gradient(90deg, #0b0e16 0 7px, #677086 7px 10px); }
+
+.saber-blade {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px 56px 56px 8px;
+  background: rgba(146, 111, 255, .28);
+  box-shadow: 0 0 8px #fff, 0 0 18px #d9c9ff, 0 0 42px #9e6dff, 0 0 86px rgba(100, 92, 255, .7), inset 0 0 22px #fff;
+  transition: filter .3s, box-shadow .3s;
+}
+
+.saber-core { position: absolute; inset: 10px 16px 10px 2px; border-radius: 4px 45px 45px 4px; background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(219,213,255,.94), rgba(255,255,255,.72)); filter: blur(1px); }
+
+.saber-sentence {
+  position: relative;
+  z-index: 2;
+  width: 96%;
+  color: #17102a;
+  text-align: center;
+  white-space: nowrap;
+  font: 650 clamp(18px, 2.1vw, 31px)/1.2 Inter, Arial, sans-serif;
+  text-shadow: 0 1px 1px rgba(255,255,255,.45);
+}
+
+.saber-word { font: inherit; font-weight: 800; }
+
+.saber-word input {
+  width: calc(var(--letters, 1) * 1.05em);
+  min-width: 1.08em;
+  padding: 0 2px 2px;
+  border: 0;
+  border-bottom: 2px solid #3c1f70;
+  outline: 0;
+  background: rgba(70, 39, 125, .08);
+  color: #261145;
+  text-align: center;
+  text-transform: lowercase;
+  font: inherit;
+  caret-color: #512390;
+}
+
+.saber-word input::placeholder { color: rgba(54, 30, 96, .64); opacity: 1; }
+
+.saber-actions {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: calc(47% + 110px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.saber-actions button, .saber-finale button {
+  height: 45px;
+  min-width: 105px;
+  padding: 0 19px;
+  border: 1px solid #5e4c91;
+  background: rgba(10, 8, 29, .86);
+  color: #ac98df;
+  cursor: pointer;
+  font: 700 10px 'Barlow Condensed';
+  letter-spacing: .15em;
+}
+
+.saber-actions .saber-check, .saber-actions .saber-next {
+  border-color: #a17cff;
+  color: #e5d9ff;
+  background: linear-gradient(135deg, #422484, #201542);
+  box-shadow: 0 0 23px rgba(137, 89, 255, .28);
+}
+
+.saber-view.is-wrong .saber-stage { animation: saber-shake .38s ease; }
+.saber-view.is-wrong .saber-blade { box-shadow: 0 0 8px #fff, 0 0 20px #ff7b9b, 0 0 52px #b03e78, inset 0 0 20px #fff; }
+.saber-view.is-solved .saber-blade { animation: energy-surge .8s ease both; }
+
+.saber-finale {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(85, 51, 170, .22), rgba(2,3,10,.84) 46%);
+  backdrop-filter: blur(5px);
+  animation: finale-in .7s ease both;
+}
+
+.saber-finale h2 { margin: 0; color: #eee9ff; font: 800 clamp(58px, 8vw, 118px)/.9 'Barlow Condensed'; letter-spacing: .04em; text-shadow: 0 0 24px #fff, 0 0 60px #8c63ff; }
+.saber-finale p { margin: 18px 0 25px; color: #ba9fff; font: 600 15px 'Barlow Condensed'; letter-spacing: .25em; }
+
+@keyframes saber-shake { 0%,100%{transform:translate(-50%,-50%)} 25%{transform:translate(calc(-50% - 9px),-50%)} 55%{transform:translate(calc(-50% + 8px),-50%)} 78%{transform:translate(calc(-50% - 4px),-50%)} }
+@keyframes energy-surge { 0%{filter:brightness(1)} 35%{filter:brightness(2.25);box-shadow:0 0 14px #fff,0 0 35px #fff,0 0 75px #a57aff,0 0 140px #566aff,inset 0 0 32px #fff} 100%{filter:brightness(1.22);box-shadow:0 0 10px #fff,0 0 25px #d9c9ff,0 0 58px #9e6dff,0 0 105px #565cff,inset 0 0 27px #fff} }
+@keyframes finale-in { from{opacity:0;transform:scale(1.06)} to{opacity:1;transform:scale(1)} }
+
+@media(max-width:900px) {
+  .saber-stage { width: 95vw; }
+  .saber-hilt { flex-basis: 105px; }
+  .saber-blade { height: 126px; }
+  .saber-sentence { white-space: normal; padding: 0 18px; }
+}

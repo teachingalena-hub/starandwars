@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const games = [
   { id:"echoes", number:"01", title:"ECHOES OF DAWN", kicker:"THE LAST LIGHT", description:"Пробудись на краю известной галактики и верни свет миру, который уже перестал надеяться.", image:"/games/echoes-of-dawn.png", genre:"ACTION RPG", players:"SOLO", accent:"#57c9ff", rgb:"87, 201, 255" },
@@ -175,6 +175,91 @@ function PileOfCards({ onBack }: { onBack: () => void }) {
   </div>;
 }
 
+type SaberPrompt = { verb: string; past: string; before: string; after: string; left: string; missing: string; right: string };
+
+const saberPrompts: SaberPrompt[] = [
+  { verb:"build", past:"built", before:"We", after:"a snowman yesterday.", left:"b", missing:"ui", right:"lt" },
+  { verb:"break", past:"broke", before:"I", after:"my pencil at school.", left:"br", missing:"o", right:"ke" },
+  { verb:"draw", past:"drew", before:"She", after:"a funny picture yesterday.", left:"dr", missing:"e", right:"w" },
+  { verb:"fall", past:"fell", before:"He", after:"off his bike.", left:"f", missing:"e", right:"ll" },
+  { verb:"find", past:"found", before:"I", after:"my phone under the bed.", left:"f", missing:"o", right:"und" },
+  { verb:"keep", past:"kept", before:"She", after:"the ticket.", left:"k", missing:"e", right:"pt" },
+  { verb:"meet", past:"met", before:"We", after:"our friends after school.", left:"m", missing:"e", right:"t" },
+];
+
+function LightsaberSpelling({ onBack }: { onBack: () => void }) {
+  const [prompts, setPrompts] = useState<SaberPrompt[]>(() => shuffle(saberPrompts));
+  const [current, setCurrent] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(false);
+  const [hint, setHint] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const prompt = prompts[current];
+  const complete = solved && current === prompts.length - 1;
+
+  useEffect(() => { if (!solved) inputRef.current?.focus(); }, [current, solved]);
+
+  const check = () => {
+    if (solved || !answer) return;
+    if (answer.trim().toLowerCase() === prompt.missing) {
+      setSolved(true);
+      setWrong(false);
+      setHint("");
+      return;
+    }
+    setWrong(true);
+    setAnswer("");
+    window.setTimeout(() => { setWrong(false); inputRef.current?.focus(); }, 430);
+  };
+
+  const next = () => {
+    if (!solved || current >= prompts.length - 1) return;
+    setCurrent((value) => value + 1);
+    setAnswer(""); setSolved(false); setWrong(false); setHint("");
+  };
+
+  const newGame = () => {
+    setPrompts(shuffle(saberPrompts)); setCurrent(0); setAnswer(""); setSolved(false); setWrong(false); setHint("");
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const showHint = () => {
+    if (solved) return;
+    setHint(prompt.missing[0]);
+    window.setTimeout(() => setHint(""), 1600);
+    inputRef.current?.focus();
+  };
+
+  return <div className={`saber-view ${wrong ? "is-wrong" : ""} ${solved ? "is-solved" : ""} ${complete ? "is-complete" : ""}`} role="dialog" aria-modal="true" aria-label="Lightsaber Spelling">
+    <div className="saber-stars" />
+    <button className="saber-back" onClick={onBack}>← &nbsp; BACK TO ARCHIVE</button>
+    <div className="saber-progress">{current + 1} <span>/</span> 7</div>
+
+    <section className="saber-stage">
+      <div className="saber-hilt"><i /><b /><em /></div>
+      <div className="saber-blade">
+        <div className="saber-core" />
+        <div className="saber-sentence">
+          <span>{prompt.before}</span>{" "}
+          <strong className="saber-word">
+            {solved ? prompt.past : <>{prompt.left}<input ref={inputRef} style={{ "--letters": prompt.missing.length } as React.CSSProperties} value={answer} maxLength={prompt.missing.length} placeholder={hint || "_".repeat(prompt.missing.length)} onChange={(event) => setAnswer(event.target.value.replace(/[^a-zA-Z]/g, "").toLowerCase())} onKeyDown={(event) => event.key === "Enter" && check()} aria-label={`Введите ${prompt.missing.length} пропущенные буквы`} />{prompt.right}</>}
+          </strong>{" "}<span>{prompt.after}</span>
+        </div>
+      </div>
+    </section>
+
+    <div className="saber-actions">
+      <button onClick={newGame}>↻ &nbsp; NEW GAME</button>
+      {!solved && <button onClick={showHint}>HINT</button>}
+      {!solved && <button className="saber-check" onClick={check}>CHECK</button>}
+      {solved && !complete && <button className="saber-next" onClick={next}>NEXT &nbsp; →</button>}
+    </div>
+
+    {complete && <div className="saber-finale"><h2>MISSION COMPLETE</h2><p>7 / 7</p><button onClick={newGame}>NEW GAME</button></div>}
+  </div>;
+}
+
 function Icon({ children }: { children: React.ReactNode }) { return <span className="nav-icon" aria-hidden="true">{children}</span>; }
 
 export default function Home() {
@@ -210,7 +295,8 @@ export default function Home() {
       </section>
       {active?.id === "echoes" && <MemoryGame onBack={() => setActive(null)} />}
       {active?.id === "shadow" && <PileOfCards onBack={() => setActive(null)} />}
-      {active && active.id !== "echoes" && active.id !== "shadow" && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
+      {active?.id === "vanguard" && <LightsaberSpelling onBack={() => setActive(null)} />}
+      {active && active.id !== "echoes" && active.id !== "shadow" && active.id !== "vanguard" && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
         <div className="game-bg" /><div className="game-vignette" /><button className="back" onClick={() => setActive(null)}>← &nbsp; BACK TO ARCHIVE</button>
         <div className="game-detail"><span className="game-index">WORLD / {active.number}</span><p>{active.kicker}</p><h2>{active.title}</h2><div className="detail-rule" /><blockquote>{active.description}</blockquote><div className="detail-meta"><span>{active.genre}</span><span>{active.players}</span><span>4K WORLD</span></div><button className="play" onClick={() => alert(`Подключение к миру «${active.title}» установлено`)}><i>▶</i><span>START GAME<small>INITIALIZE CONNECTION</small></span></button></div>
         <div className="signal"><span /><b>SIGNAL STABLE</b><em>98.7%</em></div>
