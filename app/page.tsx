@@ -9,6 +9,79 @@ const games = [
 ];
 type Game = (typeof games)[number];
 
+const verbPairs = [
+  ["build", "built"], ["break", "broke"], ["draw", "drew"],
+  ["fall", "fell"], ["find", "found"], ["keep", "kept"], ["meet", "met"],
+] as const;
+
+type MemoryCard = { id: string; pair: string; word: string; form: "INFINITIVE" | "PAST SIMPLE" };
+
+function createDeck(): MemoryCard[] {
+  return verbPairs
+    .flatMap(([infinitive, past]) => [
+      { id: `${infinitive}-inf`, pair: infinitive, word: infinitive, form: "INFINITIVE" as const },
+      { id: `${infinitive}-past`, pair: infinitive, word: past, form: "PAST SIMPLE" as const },
+    ])
+    .sort(() => Math.random() - 0.5);
+}
+
+function MemoryGame({ onBack }: { onBack: () => void }) {
+  const [deck, setDeck] = useState<MemoryCard[]>(createDeck);
+  const [open, setOpen] = useState<string[]>([]);
+  const [matched, setMatched] = useState<string[]>([]);
+  const [moves, setMoves] = useState(0);
+  const locked = open.length === 2;
+
+  useEffect(() => {
+    if (open.length !== 2) return;
+    const [first, second] = open.map((id) => deck.find((card) => card.id === id)!);
+    if (first.pair === second.pair) {
+      setMatched((current) => [...current, first.pair]);
+      setOpen([]);
+      return;
+    }
+    const timeout = window.setTimeout(() => setOpen([]), 850);
+    return () => window.clearTimeout(timeout);
+  }, [open, deck]);
+
+  const choose = (card: MemoryCard) => {
+    if (locked || open.includes(card.id) || matched.includes(card.pair)) return;
+    setOpen((current) => [...current, card.id]);
+    if (open.length === 1) setMoves((current) => current + 1);
+  };
+
+  const restart = () => {
+    setDeck(createDeck());
+    setOpen([]);
+    setMatched([]);
+    setMoves(0);
+  };
+
+  return <div className="memory-view" role="dialog" aria-modal="true" aria-label="Irregular Verbs Memory Game">
+    <div className="memory-stars" />
+    <button className="memory-back" onClick={onBack}>← &nbsp; BACK TO ARCHIVE</button>
+    <header className="memory-header">
+      <div><span>TRAINING MODULE / 01</span><h2>VERB <i>MEMORY</i></h2><p>Match the infinitive with its Past Simple form.</p></div>
+      <div className="memory-stats"><span>MOVES <b>{String(moves).padStart(2, "0")}</b></span><span>PAIRS <b>{matched.length} / 7</b></span><button onClick={restart}>↻ &nbsp; SHUFFLE</button></div>
+    </header>
+    <div className="memory-rule"><span style={{ width: `${(matched.length / 7) * 100}%` }} /></div>
+    <section className="memory-grid" aria-label="14 игровых карточек">
+      {deck.map((card, index) => {
+        const visible = open.includes(card.id) || matched.includes(card.pair);
+        const isMatched = matched.includes(card.pair);
+        return <button key={card.id} className={`memory-card ${visible ? "is-open" : ""} ${isMatched ? "is-matched" : ""}`} onClick={() => choose(card)} aria-label={visible ? `${card.word}, ${card.form}` : `Закрытая карточка ${index + 1}`} aria-pressed={visible}>
+          <span className="memory-card-inner">
+            <span className="memory-back-face"><i>✦</i><b>{String(index + 1).padStart(2, "0")}</b><em>ASTRA // VERB DATA</em></span>
+            <span className="memory-front-face"><small>{card.form}</small><strong>{card.word}</strong><i>{isMatched ? "PAIR LINKED" : "SIGNAL FOUND"}</i></span>
+          </span>
+        </button>;
+      })}
+    </section>
+    {matched.length === 7 && <div className="memory-win"><span>✦ MISSION COMPLETE ✦</span><h3>ALL PAIRS LINKED</h3><p>You matched all irregular verbs in {moves} moves.</p><button onClick={restart}>PLAY AGAIN</button></div>}
+    <div className="memory-signal"><span /> LEARNING SIGNAL STABLE <b>98.7%</b></div>
+  </div>;
+}
+
 function Icon({ children }: { children: React.ReactNode }) { return <span className="nav-icon" aria-hidden="true">{children}</span>; }
 
 export default function Home() {
@@ -42,7 +115,8 @@ export default function Home() {
         </section>
         <footer id="mission"><div><span>◉</span><b>DAILY MISSION</b><p>Откройте любой мир и проведите в нём 30 минут</p></div><div className="progress"><i><span /></i><b>0 / 30 MIN</b><em>+250 XP</em></div></footer>
       </section>
-      {active && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
+      {active?.id === "echoes" && <MemoryGame onBack={() => setActive(null)} />}
+      {active && active.id !== "echoes" && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
         <div className="game-bg" /><div className="game-vignette" /><button className="back" onClick={() => setActive(null)}>← &nbsp; BACK TO ARCHIVE</button>
         <div className="game-detail"><span className="game-index">WORLD / {active.number}</span><p>{active.kicker}</p><h2>{active.title}</h2><div className="detail-rule" /><blockquote>{active.description}</blockquote><div className="detail-meta"><span>{active.genre}</span><span>{active.players}</span><span>4K WORLD</span></div><button className="play" onClick={() => alert(`Подключение к миру «${active.title}» установлено`)}><i>▶</i><span>START GAME<small>INITIALIZE CONNECTION</small></span></button></div>
         <div className="signal"><span /><b>SIGNAL STABLE</b><em>98.7%</em></div>
