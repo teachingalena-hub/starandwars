@@ -82,6 +82,95 @@ function MemoryGame({ onBack }: { onBack: () => void }) {
   </div>;
 }
 
+type SentenceSign = "." | "?" | "−";
+type PileCard = { verb: string; past: string; complement: string; hint: string; sign: SentenceSign };
+
+const speakingVerbs = [
+  { verb: "build", past: "built", complement: "a model" },
+  { verb: "break", past: "broke", complement: "a cup" },
+  { verb: "draw", past: "drew", complement: "a picture" },
+  { verb: "fall", past: "fell", complement: "down" },
+  { verb: "find", past: "found", complement: "my phone" },
+  { verb: "keep", past: "kept", complement: "a secret" },
+  { verb: "meet", past: "met", complement: "my friend" },
+] as const;
+
+const speakingHints = ["yesterday", "last weekend", "last night", "at school", "at home", "with my friends", "on Monday", "two days ago", "after school", "during the holidays"];
+
+function shuffle<T>(items: readonly T[]): T[] {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index--) {
+    const target = Math.floor(Math.random() * (index + 1));
+    [result[index], result[target]] = [result[target], result[index]];
+  }
+  return result;
+}
+
+function createPile(): PileCard[] {
+  const signs = shuffle<SentenceSign>([".", "?", "−", ".", "?", "−", [".", "?", "−"][Math.floor(Math.random() * 3)] as SentenceSign]);
+  const hints = shuffle(speakingHints).slice(0, 7);
+  return shuffle(speakingVerbs).map((item, index) => ({ ...item, hint: hints[index], sign: signs[index] }));
+}
+
+function sentenceExample(card: PileCard): string {
+  if (card.sign === "?") return `Did you ${card.verb} ${card.complement} ${card.hint}?`;
+  if (card.sign === "−") return `I didn’t ${card.verb} ${card.complement} ${card.hint}.`;
+  return `I ${card.past} ${card.complement} ${card.hint}.`;
+}
+
+function PileOfCards({ onBack }: { onBack: () => void }) {
+  const [deck, setDeck] = useState<PileCard[]>(createPile);
+  const [current, setCurrent] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [exampleVisible, setExampleVisible] = useState(false);
+  const card = deck[current];
+
+  const next = () => {
+    if (current >= deck.length - 1) return;
+    setFlipped(false);
+    setExampleVisible(false);
+    window.setTimeout(() => setCurrent((value) => value + 1), 230);
+  };
+
+  const newDeck = () => {
+    setDeck(createPile());
+    setCurrent(0);
+    setFlipped(false);
+    setExampleVisible(false);
+  };
+
+  return <div className="pile-view" role="dialog" aria-modal="true" aria-label="Past Simple Pile of Cards">
+    <div className="pile-space" />
+    <button className="pile-back" onClick={onBack}>← &nbsp; BACK TO ARCHIVE</button>
+    <header className="pile-header">
+      <div><span>SPEAKING MODULE / 02</span><h2>PILE OF <i>CARDS</i></h2><p>Flip the card. Make a Past Simple sentence aloud.</p></div>
+      <div className="pile-counter"><small>CARD</small><strong>{current + 1} <i>/</i> 7</strong><span><b style={{ width: `${((current + 1) / 7) * 100}%` }} /></span></div>
+    </header>
+
+    <section className="pile-stage">
+      <div className="stack-card stack-third" /><div className="stack-card stack-second" />
+      <button className={`prompt-card ${flipped ? "is-flipped" : ""}`} onClick={() => !flipped && setFlipped(true)} aria-label={flipped ? `${card.verb}, Past Simple, ${card.sign}, ${card.hint}` : `Перевернуть карточку ${current + 1}`}>
+        <span className="prompt-inner">
+          <span className="prompt-cover"><small>CLASSIFIED PROMPT</small><strong>{String(current + 1).padStart(2, "0")}</strong><i>TOUCH TO REVEAL</i><em>◆</em></span>
+          <span className="prompt-face"><small>VERB // ACTIVE</small><strong>{card.verb}</strong><b>PAST SIMPLE</b><i>{card.sign}</i><span>CONTEXT</span><em>{card.hint}</em></span>
+        </span>
+      </button>
+      <p className="flip-hint">{flipped ? "SAY YOUR SENTENCE ALOUD" : "CLICK THE CARD TO FLIP"}</p>
+    </section>
+
+    <div className={`example-panel ${exampleVisible ? "is-visible" : ""}`} aria-live="polite">
+      <span>EXAMPLE TRANSMISSION</span><p>{exampleVisible ? sentenceExample(card) : "Example hidden — let the student answer first."}</p>
+    </div>
+
+    <div className="pile-actions">
+      <button className="deck-button" onClick={newDeck}>↻ &nbsp; NEW DECK</button>
+      <button className="example-button" disabled={!flipped} onClick={() => setExampleVisible((value) => !value)}>◎ &nbsp; {exampleVisible ? "HIDE EXAMPLE" : "SHOW EXAMPLE"}</button>
+      <button className="next-button" disabled={!flipped || current === deck.length - 1} onClick={next}>{current === deck.length - 1 ? "DECK COMPLETE" : "NEXT CARD"} &nbsp; →</button>
+    </div>
+    <div className="pile-status"><span /> VOICE CHANNEL OPEN <b>A1+ / A2</b></div>
+  </div>;
+}
+
 function Icon({ children }: { children: React.ReactNode }) { return <span className="nav-icon" aria-hidden="true">{children}</span>; }
 
 export default function Home() {
@@ -116,7 +205,8 @@ export default function Home() {
         <footer id="mission"><div><span>◉</span><b>DAILY MISSION</b><p>Откройте любой мир и проведите в нём 30 минут</p></div><div className="progress"><i><span /></i><b>0 / 30 MIN</b><em>+250 XP</em></div></footer>
       </section>
       {active?.id === "echoes" && <MemoryGame onBack={() => setActive(null)} />}
-      {active && active.id !== "echoes" && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
+      {active?.id === "shadow" && <PileOfCards onBack={() => setActive(null)} />}
+      {active && active.id !== "echoes" && active.id !== "shadow" && <div className="game-view" style={{ "--accent":active.accent, "--rgb":active.rgb, "--art":`url(${active.image})` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={active.title}>
         <div className="game-bg" /><div className="game-vignette" /><button className="back" onClick={() => setActive(null)}>← &nbsp; BACK TO ARCHIVE</button>
         <div className="game-detail"><span className="game-index">WORLD / {active.number}</span><p>{active.kicker}</p><h2>{active.title}</h2><div className="detail-rule" /><blockquote>{active.description}</blockquote><div className="detail-meta"><span>{active.genre}</span><span>{active.players}</span><span>4K WORLD</span></div><button className="play" onClick={() => alert(`Подключение к миру «${active.title}» установлено`)}><i>▶</i><span>START GAME<small>INITIALIZE CONNECTION</small></span></button></div>
         <div className="signal"><span /><b>SIGNAL STABLE</b><em>98.7%</em></div>
