@@ -272,11 +272,7 @@ export default function Home() {
         <a className="brand" href="#top" aria-label="Astra home"><span>Λ</span><i /></a>
         <nav aria-label="Основная навигация">
           <a className="nav-link active" href="#games"><Icon>⌂</Icon><b>HOME</b></a>
-          <a className="nav-link" href="#games"><Icon>◇</Icon><b>GAMES</b></a>
-          <a className="nav-link" href="#mission"><Icon>◎</Icon><b>MISSIONS</b></a>
-          <a className="nav-link" href="#profile"><Icon>♙</Icon><b>PROFILE</b></a>
         </nav>
-        <div className="profile" id="profile"><div className="avatar">N</div><div><strong>NOVA_7</strong><span>LEVEL 24</span></div></div>
       </aside>
       <section className="content" id="top">
         <header className="topbar">
@@ -291,7 +287,7 @@ export default function Home() {
             <span className="launch"><i>▶</i><b>ENTER</b></span>
           </button>)}
         </section>
-        <footer id="mission"><div><span>◉</span><b>DAILY MISSION</b><p>Откройте любой мир и проведите в нём 30 минут</p></div><div className="progress"><i><span /></i><b>0 / 30 MIN</b><em>+250 XP</em></div></footer>
+        <div className="library-status"><span />3 MISSIONS AVAILABLE</div>
       </section>
       {active?.id === "echoes" && <MemoryGame onBack={() => setActive(null)} />}
       {active?.id === "shadow" && <PileOfCards onBack={() => setActive(null)} />}

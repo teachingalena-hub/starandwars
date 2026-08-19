@@ -1,0 +1,28 @@
+.library-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 21px;
+  color: #7e8da1;
+  font: 600 10px 'Barlow Condensed', sans-serif;
+  letter-spacing: .19em;
+}
+
+.library-status span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #eab95e;
+  box-shadow: 0 0 11px rgba(234, 185, 94, .72);
+}
+
+@media (max-width: 620px) {
+  .rail nav {
+    justify-content: flex-start;
+  }
+
+  .rail .nav-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
